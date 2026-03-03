@@ -1,0 +1,117 @@
+import React, { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { Phone, Mail, MapPin } from "lucide-react"; import { motion } from "framer-motion";
+
+export default function NirmalEnterpriseWebsite() { const [items, setItems] = useState([ { description: "", quantity: 1, rate: 0 } ]);
+
+const addItem = () => { setItems([...items, { description: "", quantity: 1, rate: 0 }]); };
+
+const handleChange = (index, field, value) => { const updated = [...items]; updated[index][field] = value; setItems(updated); };
+
+const calculateTotal = () => { return items.reduce((total, item) => { return total + item.quantity * item.rate; }, 0); };
+
+const generateInvoice = (e) => { e.preventDefault(); const customer = e.target.customer.value; const gst = e.target.gst.value; const invoiceNo = INV-${Date.now()}; const total = calculateTotal();
+
+let itemRows = "";
+items.forEach((item, i) => {
+  itemRows += `${i + 1}. ${item.description} | Qty: ${item.quantity} | Rate: ₹${item.rate} | Amount: ₹${item.quantity * item.rate}\n`;
+});
+
+const invoiceContent = `
+
+============================== NIRMAL ENTERPRISE Shuttering & Construction Ghatkopar, Mumbai
+
+Invoice No: ${invoiceNo} Customer Name: ${customer} GST No: ${gst || "N/A"}
+
+${itemRows}
+
+TOTAL AMOUNT: ₹${total}
+
+Thank you for your business! `;
+
+const blob = new Blob([invoiceContent], { type: "application/pdf" });
+const link = document.createElement("a");
+link.href = URL.createObjectURL(blob);
+link.download = `${invoiceNo}.pdf`;
+link.click();
+
+};
+
+return ( <div className="min-h-screen bg-gray-100 text-gray-800"> {/* Hero Section */} <section className="bg-black text-white py-16 px-6 text-center"> <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-4xl md:text-5xl font-bold" > NIRMAL ENTERPRISE </motion.h1> <p className="mt-4 text-lg md:text-xl"> Professional Shuttering & Construction Services </p> <Button className="mt-6 rounded-2xl px-6 py-3 text-lg"> Get Quotation </Button> </section>
+
+{/* About Section */}
+  <section className="py-16 px-6 max-w-6xl mx-auto text-center">
+    <h2 className="text-3xl font-bold mb-6">About Us</h2>
+    <p className="text-lg">
+      We provide professional slab shuttering, column centering, beam work,
+      labour contracts and full construction solutions with quality and
+      timely delivery.
+    </p>
+  </section>
+
+  {/* Services */}
+  <section className="py-16 px-6 bg-white">
+    <h2 className="text-3xl font-bold text-center mb-10">Our Services</h2>
+    <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      {["Slab Shuttering", "Column & Beam Work", "Labour Contract", "Material + Labour", "Residential Projects", "Commercial Projects"].map((service, i) => (
+        <Card key={i} className="rounded-2xl shadow-md">
+          <CardContent className="p-6 text-center font-semibold">
+            {service}
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </section>
+
+  {/* Billing & GST */}
+  <section className="py-16 px-6 text-center">
+    <h2 className="text-3xl font-bold mb-6">Billing & GST</h2>
+    <p className="text-lg">✔ Printed Professional Billing</p>
+    <p className="text-lg">✔ GST Billing Available</p>
+    <p className="text-lg">✔ Transparent Calculation System</p>
+  </section>
+
+  {/* Professional Billing System */}
+  <section className="py-16 px-6 bg-gray-100">
+    <h2 className="text-3xl font-bold text-center mb-10">Create Invoice</h2>
+    <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+      <form onSubmit={generateInvoice} className="space-y-6">
+        <input type="text" name="customer" placeholder="Customer Name" required className="w-full p-3 border rounded-xl" />
+        <input type="text" name="gst" placeholder="Customer GST Number (Optional)" className="w-full p-3 border rounded-xl" />
+
+        {items.map((item, index) => (
+          <div key={index} className="grid md:grid-cols-3 gap-4">
+            <input type="text" placeholder="Work Description" required className="p-3 border rounded-xl" onChange={(e) => handleChange(index, "description", e.target.value)} />
+            <input type="number" placeholder="Quantity" required className="p-3 border rounded-xl" onChange={(e) => handleChange(index, "quantity", Number(e.target.value))} />
+            <input type="number" placeholder="Rate (₹)" required className="p-3 border rounded-xl" onChange={(e) => handleChange(index, "rate", Number(e.target.value))} />
+          </div>
+        ))}
+
+        <Button type="button" onClick={addItem} className="rounded-2xl">+ Add More Item</Button>
+
+        <div className="text-xl font-bold text-right">
+          Total: ₹{calculateTotal()}
+        </div>
+
+        <Button type="submit" className="w-full rounded-2xl text-lg">
+          Download Invoice (PDF)
+        </Button>
+      </form>
+    </div>
+  </section>
+
+  {/* Contact Section */}
+  <section className="py-16 px-6 bg-black text-white text-center">
+    <h2 className="text-3xl font-bold mb-8">Contact Us</h2>
+    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+      <div><Phone className="mx-auto mb-2" /><p>+91-XXXXXXXXXX</p></div>
+      <div><Mail className="mx-auto mb-2" /><p>nirmalenterprise@email.com</p></div>
+      <div><MapPin className="mx-auto mb-2" /><p>Ghatkopar, Mumbai</p></div>
+    </div>
+  </section>
+
+  {/* Footer */}
+  <footer className="bg-gray-900 text-white text-center py-4">
+    © {new Date().getFullYear()} Nirmal Enterprise. All Rights Reserved.
+  </footer>
+</div>
+
+); }
