@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Nirmal Enterprise - GST Billing</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(to right,#fff3e0,#ffe0b2);
+}
+header{
+    background:linear-gradient(to right,#e65100,#ff9800);
+    color:white;
+    text-align:center;
+    padding:40px;
+}
+section{
+    padding:30px;
+}
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom:20px;
+}
+input{
+    padding:10px;
+    margin:5px;
+    width:30%;
+}
+button{
+    padding:10px 20px;
+    margin:10px 5px;
+    background:#e65100;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+button:hover{
+    background:#bf360c;
+}
+.total-box{
+    font-size:18px;
+    font-weight:bold;
+    text-align:right;
+}
+footer{
+    background:#212121;
+    color:white;
+    text-align:center;
+    padding:15px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <img src="https://via.placeholder.com/100" style="border-radius:50%">
+    <h1>NIRMAL ENTERPRISE</h1>
+    <p>Professional Shuttering & Construction Services</p>
+</header>
+
+<section>
+<div class="card">
+<h2>Create GST Invoice</h2>
+
+<p><b>Invoice No:</b> <span id="invoiceNo"></span></p>
+
+<input type="text" id="customer" placeholder="Customer Name"><br>
+
+<input type="text" id="desc" placeholder="Work Description">
+<input type="number" id="qty" placeholder="Qty">
+<input type="number" id="rate" placeholder="Rate">
+
+<button onclick="addItem()">Add Item</button>
+
+<div id="itemList"></div>
+
+<div class="total-box">
+<p>Subtotal: ₹ <span id="subtotal">0</span></p>
+<p>GST (18%): ₹ <span id="gst">0</span></p>
+<p>Grand Total: ₹ <span id="total">0</span></p>
+</div>
+
+<button onclick="saveBill()">Save Bill</button>
+<button onclick="window.print()">Print / Download</button>
+
+</div>
+</section>
+
+<section>
+<div class="card">
+<h2>Bill History</h2>
+<div id="history"></div>
+</div>
+</section>
+
+<footer>
+© 2026 Nirmal Enterprise | Ghatkopar, Mumbai
+</footer>
+
+<script>
+
+let items = [];
+let invoiceNo = "INV-" + Date.now();
+document.getElementById("invoiceNo").innerText = invoiceNo;
+
+function addItem(){
+    let desc = document.getElementById("desc").value;
+    let qty = parseFloat(document.getElementById("qty").value);
+    let rate = parseFloat(document.getElementById("rate").value);
+
+    if(!desc || !qty || !rate){
+        alert("Fill all fields");
+        return;
+    }
+
+    items.push({desc, qty, rate});
+    displayItems();
+    calculateTotal();
+}
+
+function displayItems(){
+    let list = "";
+    items.forEach((item,i)=>{
+        list += `<p>${i+1}. ${item.desc} | Qty:${item.qty} | Rate:${item.rate} | Amt:${item.qty*item.rate}</p>`;
+    });
+    document.getElementById("itemList").innerHTML = list;
+}
+
+function calculateTotal(){
+    let subtotal = 0;
+    items.forEach(item=>{
+        subtotal += item.qty * item.rate;
+    });
+
+    let gst = subtotal * 0.18;
+    let total = subtotal + gst;
+
+    document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+    document.getElementById("gst").innerText = gst.toFixed(2);
+    document.getElementById("total").innerText = total.toFixed(2);
+}
+
+function saveBill(){
+    let customer = document.getElementById("customer").value;
+    let subtotal = document.getElementById("subtotal").innerText;
+    let gst = document.getElementById("gst").innerText;
+    let total = document.getElementById("total").innerText;
+
+    let bill = {
+        invoiceNo,
+        customer,
+        subtotal,
+        gst,
+        total,
+        date:new Date().toLocaleDateString()
+    };
+
+    let history = JSON.parse(localStorage.getItem("bills")) || [];
+    history.push(bill);
+    localStorage.setItem("bills",JSON.stringify(history));
+
+    loadHistory();
+    alert("Bill Saved!");
+}
+
+function loadHistory(){
+    let history = JSON.parse(localStorage.getItem("bills")) || [];
+    let html = "";
+    history.forEach(b=>{
+        html += `<p><b>${b.invoiceNo}</b> | ₹${b.total} | ${b.date}</p>`;
+    });
+    document.getElementById("history").innerHTML = html;
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
